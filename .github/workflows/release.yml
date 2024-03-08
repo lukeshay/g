@@ -18,6 +18,7 @@ jobs:
         with:
           release: true
           git-user: "Cog Bot"
+          check-latest-tag-only: true
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
