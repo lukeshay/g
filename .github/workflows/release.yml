@@ -18,7 +18,7 @@ jobs:
         with:
           release: true
           git-user: "Cog Bot"
-      - run: cog changelog --at ${{ steps.release.outputs.version }}  -t remote --remote github.com --owner lukeshay --repository g > CHANGELOG.md
+      - run: cog changelog --at ${{ steps.release.outputs.version }} > CHANGELOG.md
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
