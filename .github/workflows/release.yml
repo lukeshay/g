@@ -11,12 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oknozor/cocogitto-action@v3
         id: release
         with:
           release: true
           git-user: "Cog Bot"
+      - run: cog changelog --at ${{ steps.release.outputs.version }}  -t remote --remote github.com --owner lukeshay --repository g > CHANGELOG.md
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
           tag_name: ${{ steps.release.outputs.version }}
+          files: |
+            CHANGELOG.md
+            README.md
+            LICENSE
+          discussion_category_name: Announcements
