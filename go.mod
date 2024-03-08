@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/DataDog/datadog-go v4.8.3+incompatible
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/magefile/mage v1.15.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.61.0
 )
@@ -17,7 +18,6 @@ require (
 	github.com/DataDog/go-tuf v1.0.2-0.5.2 // indirect
 	github.com/DataDog/gostackparse v0.7.0 // indirect
 	github.com/DataDog/sketches-go v1.4.2 // indirect
-	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
