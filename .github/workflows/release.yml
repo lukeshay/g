@@ -1,19 +1,22 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: oknozor/cocogitto-action@v3
+        id: release
+        with:
+          release: true
+          git-user: "Cog Bot"
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
-          files: |
-            CHANGELOG.md
-            LICENSE
-            README.md
+          tag_name: ${{ steps.release.outputs.version }}

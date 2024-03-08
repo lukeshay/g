@@ -1,0 +1,10 @@
+name: CI
+
+jobs:
+  commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oknozor/cocogitto-action@v3
+        with:
+          check-latest-tag-only: true
