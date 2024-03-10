@@ -14,17 +14,18 @@ jobs:
         with:
           fetch-depth: 0
       - uses: oknozor/cocogitto-action@v3
-        id: release
         with:
           git-user: "Cog Bot"
           check-latest-tag-only: true
       - run: cog bump --auto
       - run: git push --tags
-      - run: cog changelog --at ${{ steps.release.outputs.version }} > CHANGELOG.md
+      - run: echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+        id: tag
+      - run: cog changelog --at ${{ steps.tag.outputs.tag }} > CHANGELOG.md
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
-          tag_name: ${{ steps.release.outputs.version }}
+          tag_name: ${{ steps.tag.outputs.tag }}
           files: |
             CHANGELOG.md
             README.md
