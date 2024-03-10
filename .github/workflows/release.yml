@@ -16,9 +16,11 @@ jobs:
       - uses: oknozor/cocogitto-action@v3
         id: release
         with:
-          release: true
           git-user: "Cog Bot"
           check-latest-tag-only: true
+      - run: cog bump --auto
+      - run: git push --tags
+      - run: cog changelog --at ${{ steps.release.outputs.version }} > CHANGELOG.md
       - uses: softprops/action-gh-release@v1
         with:
           body_path: CHANGELOG.md
