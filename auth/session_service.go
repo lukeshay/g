@@ -72,7 +72,7 @@ func (a *SessionService) GetSession(ctx context.Context, sessionID string) (Sess
 	}
 
 	if session.GetExpiresAt().Before(time.Now()) {
-		return nil, fmt.Errorf("session is expired: expiration: %s, now: %s", session.GetExpiresAt().Format(time.RFC3339))
+		return nil, fmt.Errorf("session is expired: %s", session.GetExpiresAt().Format(time.RFC3339))
 	}
 
 	return session, nil

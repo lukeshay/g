@@ -1,17 +1,22 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
 
 jobs:
-  commits:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cmd:
+          - gofmt -e -s .
+          - go vet ./...
+          - go test ./...
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: oknozor/cocogitto-action@v3
-        with:
-          check-latest-tag-only: true
+      - uses: jdx/mise-action@v2
+      - run: go mod download
+      - run: ${{ matrix.cmd }}
