@@ -21,3 +21,5 @@ jobs:
         with:
           scopes: |
             datadog
+            datadog/logger
+            auth
