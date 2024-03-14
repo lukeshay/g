@@ -25,18 +25,25 @@ const (
 // Handle adds contextual attributes to the Record before calling the underlying
 // handler
 func (h DatadogContextHandler) Handle(ctx context.Context, r slog.Record) error {
+	ddArgs := []any{
+		"service", h.options.DDService,
+		"version", h.options.DDVersion,
+		"env", h.options.DDEnv,
+	}
+
 	if span, found := tracer.SpanFromContext(ctx); found {
-		r.Add(
-			slog.Group(
-				"dd",
-				"span_id", span.Context().SpanID(),
-				"trace_id", span.Context().TraceID(),
-				"service", h.options.DDService,
-				"version", h.options.DDVersion,
-				"env", h.options.DDEnv,
-			),
+		ddArgs = append(
+			ddArgs,
+			"span_id", span.Context().SpanID(),
+			"trace_id", span.Context().TraceID(),
 		)
 	}
+	r.Add(
+		slog.Group(
+			"dd",
+			ddArgs...,
+		),
+	)
 
 	if attrs, ok := ctx.Value(slogFields).([]slog.Attr); ok {
 		for _, v := range attrs {
