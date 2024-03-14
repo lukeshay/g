@@ -32,10 +32,6 @@ jobs:
         with:
           git-user: "Cog Bot"
           check-latest-tag-only: true
-      - uses: actions/download-artifact@v4
-        with:
-          name: docs
-          path: _site
       - uses: jdx/mise-action@v2
       - run: go mod download
       - run: cog bump --${{ inputs.bump_type }}
