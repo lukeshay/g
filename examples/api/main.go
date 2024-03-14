@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,22 +10,47 @@ import (
 	"os"
 	"time"
 
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/sqlitedialect"
+	"github.com/uptrace/bun/driver/sqliteshim"
+	"github.com/uptrace/bun/extra/bundebug"
+
 	"github.com/lukeshay/g/auth"
-	adaptors "github.com/lukeshay/g/auth/adapters"
 	"github.com/lukeshay/g/auth/encrypters"
 	"github.com/lukeshay/g/auth/generators"
 )
 
 func main() {
+	sqldb, err := sql.Open(sqliteshim.ShimName, "file:./db.db?cache=shared")
+	if err != nil {
+		panic(err)
+	}
+
+	db := bun.NewDB(sqldb, sqlitedialect.New())
 	encrypter, err := encrypters.NewAesEncrypter("thisissupersecret")
 	if err != nil {
 		panic(err)
 	}
 
+	db.AddQueryHook(bundebug.NewQueryHook(
+		bundebug.WithVerbose(true),
+		bundebug.FromEnv("BUNDEBUG"),
+	))
+
+	err = db.ResetModel(context.Background(), (*Session)(nil))
+	if err != nil {
+		panic(err)
+	}
+
 	authManager := auth.New(auth.NewOptions{
-		Adapter:   adaptors.NewInMemoryAdapter(),
+		Adapter: &Adapter{
+			db: db,
+		},
 		Encrypter: encrypter,
 		Generator: generators.NewBase32Generator(15),
+		Validate: func(ctx context.Context, r *http.Request, s auth.Session) (context.Context, error) {
+			return ctx, nil
+		},
 		CookieOptions: auth.CookieOptions{
 			Name:   "session_id",
 			Path:   "/",
@@ -39,7 +66,7 @@ func main() {
 			return
 		}
 
-		_, session, err := authManager.CreateNewSession(r.Context(), w, &adaptors.Session{
+		_, session, err := authManager.CreateNewSession(r.Context(), w, &Session{
 			UserID:       string(body),
 			ExpiresAt:    time.Now().Add(time.Hour),
 			RefreshUntil: time.Now().Add(time.Hour * 24),

@@ -30,7 +30,7 @@ type CookieOptions struct {
 	Secure bool
 }
 
-type NewOptions struct {
+type NewSessionServiceOptions struct {
 	Adapter       Adapter
 	Encrypter     Encrypter
 	Generator     Generator
@@ -38,7 +38,7 @@ type NewOptions struct {
 }
 
 // NewSessionService returns a new instance of Auth.
-func NewSessionService(options NewOptions) *SessionService {
+func NewSessionService(options NewSessionServiceOptions) *SessionService {
 	return &SessionService{
 		adapter:       options.Adapter,
 		encrypter:     options.Encrypter,
@@ -48,7 +48,7 @@ func NewSessionService(options NewOptions) *SessionService {
 }
 
 // 4. Return the session and cookie
-func (a *SessionService) CreateSession(ctx context.Context, newSession SessionV2) (SessionV2, error) {
+func (a *SessionService) CreateSession(ctx context.Context, newSession Session) (Session, error) {
 	sessionID, err := a.generator.Generate()
 	if err != nil {
 		return nil, fmt.Errorf("error generating session id: %s", err.Error())
@@ -65,7 +65,7 @@ func (a *SessionService) CreateSession(ctx context.Context, newSession SessionV2
 	return insertedSession, nil
 }
 
-func (a *SessionService) GetSession(ctx context.Context, sessionID string) (SessionV2, error) {
+func (a *SessionService) GetSession(ctx context.Context, sessionID string) (Session, error) {
 	session, err := a.adapter.GetSession(ctx, sessionID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting session: %s", err.Error())
@@ -78,7 +78,7 @@ func (a *SessionService) GetSession(ctx context.Context, sessionID string) (Sess
 	return session, nil
 }
 
-func (a *SessionService) GetSessionFromCookies(ctx context.Context, cookies []*http.Cookie) (SessionV2, error) {
+func (a *SessionService) GetSessionFromCookies(ctx context.Context, cookies []*http.Cookie) (Session, error) {
 	for _, cookie := range cookies {
 		if cookie.Name == a.cookieOptions.Name {
 			return a.GetSessionFromCookie(ctx, cookie)
@@ -88,7 +88,7 @@ func (a *SessionService) GetSessionFromCookies(ctx context.Context, cookies []*h
 	return nil, fmt.Errorf("session not found")
 }
 
-func (a *SessionService) GetSessionFromCookie(ctx context.Context, cookie *http.Cookie) (SessionV2, error) {
+func (a *SessionService) GetSessionFromCookie(ctx context.Context, cookie *http.Cookie) (Session, error) {
 	decryptedSessionID, err := a.DecryptSessionID(cookie.Value)
 	if err != nil {
 		return nil, fmt.Errorf("error decrypting session id: %s", err.Error())
@@ -97,7 +97,7 @@ func (a *SessionService) GetSessionFromCookie(ctx context.Context, cookie *http.
 	return a.GetSession(ctx, decryptedSessionID)
 }
 
-func (a *SessionService) UpdateSession(ctx context.Context, session SessionV2) error {
+func (a *SessionService) UpdateSession(ctx context.Context, session Session) error {
 	return a.adapter.UpdateSession(ctx, session)
 }
 
@@ -117,7 +117,7 @@ func (a *SessionService) DecryptSessionID(encryptedSessionID string) (string, er
 	return a.encrypter.Decrypt(encryptedSessionID)
 }
 
-func (a *SessionService) CreateCookie(session SessionV2) (*http.Cookie, error) {
+func (a *SessionService) CreateCookie(session Session) (*http.Cookie, error) {
 	encryptedSessionID, err := a.EncryptSessionID(session.GetSessionID())
 	if err != nil {
 		return a.createCookie(time.Now(), ""), fmt.Errorf("error encrypting session id: %s", err.Error())

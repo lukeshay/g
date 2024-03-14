@@ -16,7 +16,7 @@ type Session struct {
 	RefreshUntil time.Time `json:"-" xml:"-" yaml:"-"`
 }
 
-var _ auth.SessionV2 = &Session{}
+var _ auth.Session = &Session{}
 
 func (s *Session) GetSessionID() string {
 	return s.SessionID
@@ -42,7 +42,7 @@ func (s *Session) SetExpiresAt(expiresAt time.Time) {
 	s.ExpiresAt = expiresAt
 }
 
-func (s *Session) Copy() auth.SessionV2 {
+func (s *Session) Copy() auth.Session {
 	return &Session{
 		SessionID:    s.SessionID,
 		UserID:       s.UserID,
@@ -61,7 +61,7 @@ func NewInMemoryAdapter() auth.Adapter {
 	}
 }
 
-func (a *InMemoryAdapter) GetSession(ctx context.Context, sessionID string) (auth.SessionV2, error) {
+func (a *InMemoryAdapter) GetSession(ctx context.Context, sessionID string) (auth.Session, error) {
 	value, found := a.sessions.Load(sessionID)
 	if !found {
 		return nil, fmt.Errorf("session not found")
@@ -70,7 +70,7 @@ func (a *InMemoryAdapter) GetSession(ctx context.Context, sessionID string) (aut
 	return value.(*Session), nil
 }
 
-func (a *InMemoryAdapter) InsertSession(ctx context.Context, newSession auth.SessionV2) error {
+func (a *InMemoryAdapter) InsertSession(ctx context.Context, newSession auth.Session) error {
 	session := newSession.(*Session)
 
 	a.sessions.Store(session.SessionID, session)
@@ -78,13 +78,13 @@ func (a *InMemoryAdapter) InsertSession(ctx context.Context, newSession auth.Ses
 	return nil
 }
 
-func (a *InMemoryAdapter) UpdateSession(ctx context.Context, newSession auth.SessionV2) error {
+func (a *InMemoryAdapter) UpdateSession(ctx context.Context, newSession auth.Session) error {
 	return a.InsertSession(ctx, newSession)
 }
 
 func (a *InMemoryAdapter) DeleteSessionsByUserID(ctx context.Context, userID string) error {
 	a.sessions.Range(func(key any, value any) bool {
-		session := value.(*auth.Session)
+		session := value.(*Session)
 		if session.UserID == userID {
 			a.sessions.Delete(key)
 		}

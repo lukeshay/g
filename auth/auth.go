@@ -10,13 +10,30 @@ type contextKey string
 
 const SessionContextKey contextKey = "session"
 
+type Validate func(context.Context, *http.Request, Session) (context.Context, error)
+
 type Auth struct {
-	service *SessionService
+	service  *SessionService
+	validate Validate
+}
+
+type NewOptions struct {
+	Adapter       Adapter
+	Encrypter     Encrypter
+	Generator     Generator
+	CookieOptions CookieOptions
+	Validate      Validate
 }
 
 func New(options NewOptions) *Auth {
 	return &Auth{
-		service: NewSessionService(options),
+		service: NewSessionService(NewSessionServiceOptions{
+			Adapter:       options.Adapter,
+			Encrypter:     options.Encrypter,
+			Generator:     options.Generator,
+			CookieOptions: options.CookieOptions,
+		}),
+		validate: options.Validate,
 	}
 }
 
@@ -24,7 +41,7 @@ func (a *Auth) Service() *SessionService {
 	return a.service
 }
 
-func (a *Auth) CreateNewSession(ctx context.Context, w http.ResponseWriter, newSession SessionV2) (context.Context, SessionV2, error) {
+func (a *Auth) CreateNewSession(ctx context.Context, w http.ResponseWriter, newSession Session) (context.Context, Session, error) {
 	session, err := a.service.CreateSession(ctx, newSession)
 	if err != nil {
 		return ctx, nil, err
@@ -42,13 +59,17 @@ func (a *Auth) CreateNewSession(ctx context.Context, w http.ResponseWriter, newS
 	return ctx, session, nil
 }
 
-func (e *Auth) GetSession(ctx context.Context, r *http.Request) (context.Context, SessionV2, error) {
-	session, ok := ctx.Value(SessionContextKey).(SessionV2)
-	if ok {
-		return ctx, session, nil
+func (e *Auth) GetSession(ctx context.Context, r *http.Request) (context.Context, Session, error) {
+	var err error
+	session, ok := ctx.Value(SessionContextKey).(Session)
+	if !ok {
+		session, err = e.service.GetSessionFromCookies(ctx, r.Cookies())
+		if err != nil {
+			return ctx, nil, err
+		}
 	}
 
-	session, err := e.service.GetSessionFromCookies(ctx, r.Cookies())
+	ctx, err = e.validate(ctx, r, session)
 	if err != nil {
 		return ctx, nil, err
 	}
@@ -58,7 +79,7 @@ func (e *Auth) GetSession(ctx context.Context, r *http.Request) (context.Context
 	return ctx, session, nil
 }
 
-func (e *Auth) GetSessionAndRefresh(ctx context.Context, w http.ResponseWriter, r *http.Request, expiresAt time.Time) (context.Context, SessionV2, error) {
+func (e *Auth) GetSessionAndRefresh(ctx context.Context, w http.ResponseWriter, r *http.Request, expiresAt time.Time) (context.Context, Session, error) {
 	ctx, session, err := e.GetSession(ctx, r)
 	if err != nil {
 		return ctx, nil, err

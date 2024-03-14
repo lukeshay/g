@@ -12,13 +12,13 @@ import (
 type Adapter interface {
 	// GetSession retrieves the session with the given sessionID from the
 	// database and returns it.
-	GetSession(ctx context.Context, sessionID string) (SessionV2, error)
+	GetSession(ctx context.Context, sessionID string) (Session, error)
 	// InsertSession inserts a new session into the database with the given
 	// values.
-	InsertSession(ctx context.Context, newSession SessionV2) error
+	InsertSession(ctx context.Context, newSession Session) error
 	// UpdateSession updates the session with the given sessionID to have a new
 	// expiration time.
-	UpdateSession(ctx context.Context, newSession SessionV2) error
+	UpdateSession(ctx context.Context, newSession Session) error
 	// DeleteSessionsByUserID invalidates all sessions for the given user.
 	DeleteSessionsByUserID(ctx context.Context, userID string) error
 	// DeleteSession invalidates the session with the given sessionID.

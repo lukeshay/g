@@ -22,3 +22,5 @@ go.work
 
 dist/
 CHANGELOG.md
+*.db
+*.log
