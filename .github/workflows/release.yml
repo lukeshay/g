@@ -38,8 +38,7 @@ jobs:
       - run: echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
         id: tag
       - run: cog changelog --at ${{ steps.tag.outputs.tag }} > CHANGELOG.md
-      - run: git add . && cog commit chore "Release ${{ steps.tag.outputs.tag }}"
-      - run: git push && git push --tags
+      - run: git push --tags
       - uses: softprops/action-gh-release@v2
         with:
           body_path: CHANGELOG.md
