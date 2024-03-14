@@ -18,6 +18,7 @@ import (
 	"github.com/lukeshay/g/auth"
 	"github.com/lukeshay/g/auth/encrypters"
 	"github.com/lukeshay/g/auth/generators"
+	"github.com/lukeshay/g/auth/netauth"
 )
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	authManager := auth.New(auth.NewOptions{
+	authManager := netauth.New(netauth.NewOptions{
 		Adapter: &Adapter{
 			db: db,
 		},
@@ -51,8 +52,8 @@ func main() {
 		Validate: func(ctx context.Context, r *http.Request, s auth.Session) (context.Context, error) {
 			return ctx, nil
 		},
-		CookieOptions: auth.CookieOptions{
-			Name:   "session_id",
+		CookieOptions: netauth.CookieOptions{
+			Name:   "session",
 			Path:   "/",
 			Secure: false,
 		},
