@@ -4,7 +4,6 @@ go 1.22.0
 
 require (
 	github.com/DataDog/datadog-go v4.8.3+incompatible
-	github.com/lukeshay/records v0.0.0-20240301195907-6b2d211884cd
 	github.com/rs/zerolog v1.32.0
 	github.com/samber/slog-zerolog v1.0.0
 	github.com/uptrace/bun v1.1.17
@@ -52,6 +51,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	golang.org/x/crypto v0.20.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
