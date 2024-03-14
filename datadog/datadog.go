@@ -13,20 +13,21 @@ type IntializeOptions struct {
 	DDAgentHost string
 	DDEnv       string
 	DDVersion   string
+	DDService   string
 }
 
 func Initialize(options IntializeOptions) func() error {
 	if !strings.Contains(options.DDEnv, "local") {
 		tracer.Start(
 			tracer.WithEnv(options.DDEnv),
-			tracer.WithService("deployer"),
+			tracer.WithService(options.DDService),
 			tracer.WithServiceVersion(options.DDVersion),
 			tracer.WithLogStartup(false),
 			tracer.WithDebugMode(false),
 		)
 		profiler.Start(
 			profiler.WithEnv(options.DDEnv),
-			profiler.WithService("deployer"),
+			profiler.WithService(options.DDService),
 			profiler.WithVersion(options.DDVersion),
 			profiler.WithProfileTypes(
 				profiler.CPUProfile,
