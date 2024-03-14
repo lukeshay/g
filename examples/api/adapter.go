@@ -11,7 +11,7 @@ type Adapter struct {
 	db *bun.DB
 }
 
-var _ auth.Adapter = (*Adapter)(nil)
+var _ auth.SessionAdapter = (*Adapter)(nil)
 
 func (a *Adapter) GetSession(ctx context.Context, sessionID string) (auth.Session, error) {
 	session := new(Session)

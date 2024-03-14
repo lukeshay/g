@@ -18,7 +18,7 @@ import (
 //   - [Encrypter](./encrypters)
 //   - [Generator](./generators)
 type SessionService struct {
-	adapter       Adapter
+	adapter       SessionAdapter
 	encrypter     Encrypter
 	generator     Generator
 	cookieOptions CookieOptions
@@ -31,7 +31,7 @@ type CookieOptions struct {
 }
 
 type NewSessionServiceOptions struct {
-	Adapter       Adapter
+	Adapter       SessionAdapter
 	Encrypter     Encrypter
 	Generator     Generator
 	CookieOptions CookieOptions

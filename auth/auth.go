@@ -18,7 +18,7 @@ type Auth struct {
 }
 
 type NewOptions struct {
-	Adapter       Adapter
+	Adapter       SessionAdapter
 	Encrypter     Encrypter
 	Generator     Generator
 	CookieOptions CookieOptions

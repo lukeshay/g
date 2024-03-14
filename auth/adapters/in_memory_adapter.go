@@ -55,7 +55,7 @@ type InMemoryAdapter struct {
 	sessions sync.Map
 }
 
-func NewInMemoryAdapter() auth.Adapter {
+func NewInMemoryAdapter() auth.SessionAdapter {
 	return &InMemoryAdapter{
 		sessions: sync.Map{},
 	}

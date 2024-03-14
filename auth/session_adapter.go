@@ -4,12 +4,13 @@ import (
 	"context"
 )
 
-// Adapter is responsible for creating, updating, and deleting sessions from a
-// datastore of your choice. This can be a SQL database, a NoSQL database, an
-// in-memory cache, etc. It is up to you to implement this interface for your
-// specific use case. The adapter should just be simple operations. The logic
-// for wether for calling these operations are handled elsewhere.
-type Adapter interface {
+// SessionAdapter is responsible for creating, updating, and deleting sessions
+// from a datastore of your choice. This can be a SQL database, a NoSQL
+// database, an in-memory cache, etc. It is up to you to implement this
+// interface for your specific use case. The adapter should just be simple
+// operations. The logic for wether for calling these operations are handled
+// elsewhere.
+type SessionAdapter interface {
 	// GetSession retrieves the session with the given sessionID from the
 	// database and returns it.
 	GetSession(ctx context.Context, sessionID string) (Session, error)
