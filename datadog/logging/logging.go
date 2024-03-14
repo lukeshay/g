@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/lukeshay/records/pkg/config"
+	"github.com/lukeshay/g/datadog"
 	"github.com/rs/zerolog"
 	slogzerolog "github.com/samber/slog-zerolog"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
@@ -13,11 +13,14 @@ import (
 
 type DatadogContextHandler struct {
 	slog.Handler
+	options datadog.IntializeOptions
 }
 
 type ctxKey string
 
-const slogFields ctxKey = "slog_fields"
+const (
+	slogFields ctxKey = "slog_fields"
+)
 
 // Handle adds contextual attributes to the Record before calling the underlying
 // handler
@@ -28,9 +31,9 @@ func (h DatadogContextHandler) Handle(ctx context.Context, r slog.Record) error 
 				"dd",
 				"span_id", span.Context().SpanID(),
 				"trace_id", span.Context().TraceID(),
-				"service", "deployer",
-				"version", config.Version,
-				"env", config.Environment,
+				"service", h.options.DDService,
+				"version", h.options.DDVersion,
+				"env", h.options.DDEnv,
 			),
 		)
 	}
@@ -62,9 +65,12 @@ func AppendCtx(parent context.Context, attr slog.Attr) context.Context {
 	return context.WithValue(parent, slogFields, v)
 }
 
-func Initialize() {
+func Initialize(options datadog.IntializeOptions) {
 	zerologL := zerolog.New(os.Stdout).Level(zerolog.DebugLevel)
-	h := &DatadogContextHandler{slogzerolog.Option{Logger: &zerologL}.NewZerologHandler()}
+	h := &DatadogContextHandler{
+		Handler: slogzerolog.Option{Logger: &zerologL}.NewZerologHandler(),
+		options: options,
+	}
 
 	logger := slog.New(h)
 
