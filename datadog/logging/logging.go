@@ -19,7 +19,8 @@ type DatadogContextHandler struct {
 type ctxKey string
 
 const (
-	slogFields ctxKey = "slog_fields"
+	slogFields            ctxKey = "slog_fields"
+	SlogCustomAttrsCtxKey ctxKey = "slog_custom_attrs"
 )
 
 // Handle adds contextual attributes to the Record before calling the underlying
@@ -47,6 +48,12 @@ func (h DatadogContextHandler) Handle(ctx context.Context, r slog.Record) error 
 
 	if attrs, ok := ctx.Value(slogFields).([]slog.Attr); ok {
 		for _, v := range attrs {
+			r.AddAttrs(v)
+		}
+	}
+
+	if customAttrs, ok := ctx.Value(SlogCustomAttrsCtxKey).([]slog.Attr); ok {
+		for _, v := range customAttrs {
 			r.AddAttrs(v)
 		}
 	}

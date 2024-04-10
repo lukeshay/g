@@ -17,7 +17,7 @@ type IntializeOptions struct {
 }
 
 func Initialize(options IntializeOptions) func() error {
-	if !strings.Contains(options.DDEnv, "local") {
+	if !strings.Contains(options.DDEnv, "local") && options.DDAgentHost != "" {
 		tracer.Start(
 			tracer.WithEnv(options.DDEnv),
 			tracer.WithService(options.DDService),

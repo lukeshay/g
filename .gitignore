@@ -24,3 +24,4 @@ dist/
 CHANGELOG.md
 *.db
 *.log
+.DS_Store
