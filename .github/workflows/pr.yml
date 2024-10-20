@@ -20,6 +20,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           scopes: |
-            engine
-            node
-            js
+            auth
+            auth/adapters
+            auth/encrypters
+            auth/fastauth
+            auth/generators
+            auth/netauth
+            datadog
+            datadog/logging
+            logging
